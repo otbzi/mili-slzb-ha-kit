@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "device": {
+    "ieeeAddress": "REPLACE_WITH_DEVICE_IEEE",
+    "friendlyName": "mili_pr5y"
+  },
+  "mqtt": {
+    "baseTopic": "zigbee2mqtt",
+    "bridgeStateTopic": "zigbee2mqtt/bridge/state"
+  },
+  "homeAssistant": {
+    "entityPrefix": "mili_pr5y",
+    "temperatureMin": 16,
+    "temperatureMax": 30,
+    "temperatureStep": 1,
+    "dashboardTitle": "空调定时"
+  },
+  "zones": [
+    {
+      "address": "0x0101",
+      "key": "zone_1",
+      "name": "区域 1 空调"
+    },
+    {
+      "address": "0x0102",
+      "key": "zone_2",
+      "name": "区域 2 空调"
+    },
+    {
+      "address": "0x0103",
+      "key": "zone_3",
+      "name": "区域 3 空调"
+    },
+    {
+      "address": "0x0104",
+      "key": "zone_4",
+      "name": "区域 4 空调"
+    }
+  ]
+}
