@@ -61,3 +61,99 @@ actions:
     data: {}
 mode: single
 ```
+
+# 客厅4合一开关
+
+整体步骤和上面的玄关3合一开关差不多，我先把脚本和自动化的YAML文件填上去，详细步骤，我稍后再补充，下面是会客模式的脚本，会打开客厅的三个灯，中间会延迟50ms。需要创建四个脚本，分别是会客、就寝、影音、就餐，根据自己需要来配置打开或者关闭哪些开关
+
+```YAML
+sequence:
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id: switch.ke_ting_san_jian_kai_guan_left
+    data: {}
+  - delay: "00:00:00.050"
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id: switch.ke_ting_san_jian_kai_guan_right
+    data: {}
+  - delay: "00:00:00.050"
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id: switch.ke_ting_san_jian_kai_guan_center
+    data: {}
+alias: 会客
+description: ""
+mode: queued
+max: 10
+
+```
+
+下面是4合一开关的自动化调度，会监听开关的按键，做出响应的action，这里是对四种模式统一处理了，只需要一个自动化就可以实现，另外这里面每一种action，具体都执行了两次，因为只执行一次有时候不灵，没有解决的特别完美。
+
+```YAML
+alias: 米立4键情景开关-全功能底层总调度自动化
+description: 终极无懈可击版：合四为一，彻底根治切换按键不灵、吞动作的所有隐形Bug
+triggers:
+  - trigger: mqtt
+    topic: zigbee2mqtt/4键情景开关
+conditions:
+  - condition: template
+    value_template: >-
+      {{ trigger.payload_json.action is defined and trigger.payload_json.action
+      != "" }}
+actions:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.payload_json.action == 'button_1' }}"
+        sequence:
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_3
+          - delay: "00:00:00.200"
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_3
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.payload_json.action == 'button_2' }}"
+        sequence:
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_4
+          - delay: "00:00:00.200"
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_4
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.payload_json.action == 'button_3' }}"
+        sequence:
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_5
+          - delay: "00:00:00.200"
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_5
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.payload_json.action == 'button_4' }}"
+        sequence:
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_6
+          - delay: "00:00:00.200"
+          - action: script.turn_on
+            target:
+              entity_id: script.unknown_6
+  - delay:
+      milliseconds: 250
+mode: queued
+max: 10
+
+```
