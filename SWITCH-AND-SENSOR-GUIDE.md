@@ -12,7 +12,7 @@
 1. Zigbee2MQTT Web界面，点击允许加入
 2. 长按开关左上角，直到开关灯闪烁
 3. Zigbee2MQTT Web界面可以看到新增加的设备，型号是TS0601和制造商_TZE200_0ahutzw0
-4. 可以将该设备改名为玄关三键开关，这个时候在暴露功能中，看不到对一个的开关按键
+4. 可以将该设备改名为玄关三键开关，这个时候在暴露功能中，看不到对应的开关按键
 5. 将external_converters中的mili_3gang_switch.js上传到docker/zigbee2mqtt的data/external_converters目录中
 6. 重新启动zigbee2mqtt容器，并在日志中检查，如果显示 info: z2m: Loaded external converter 'mili_3gang_switch.js'.说明驱动加载成功。
 7. 这个时候在暴露功能中就可以看到一个开关和一个Action，可以尝试这个开关和走廊射灯能否联动，同时按离家模式和回家模式可以看看Action中显示什么，应该是可以显示center和right
