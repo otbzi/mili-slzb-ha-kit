@@ -1,19 +1,21 @@
-# 米立开关与 PR5Y 空调接入 Home Assistant 教程
+# 米立开关、环境探测器与 PR5Y 空调接入 Home Assistant 教程
 
-版本：1.2.0
+版本：1.3.0
 状态：实验性，但核心控制链路已经过真实设备闭环验证
 
 第一次接触 Home Assistant、Zigbee2MQTT 或不知道先买什么，请先读
 `HUMAN-GUIDE.md`。它按购买、安装、网页操作、设备迁移、Apple Home 和 AI
 协作的顺序编写。
 
-这份教程包含两条路线：
+这份教程包含三条路线：
 
 1. 普通米立 Zigbee 墙壁开关迁移到 Zigbee2MQTT 和 Home Assistant。
-2. 米立中央空调集中控制器 PR5Y 通过专用 converter 接入多个 HA Climate。
+2. 米立六合一环境探测器通过专用 converter 接入六项 HA Sensor。
+3. 米立中央空调集中控制器 PR5Y 通过专用 converter 接入多个 HA Climate。
 
-墙壁开关的小白教程见 `docs/MILI-SWITCH.md`。本文主体继续讲解需要代码适配的
-PR5Y 空调，可选步骤还可以把设备发布到 Apple Home 和 Siri。
+墙壁开关的小白教程见 `docs/MILI-SWITCH.md`，环境探测器教程见
+`docs/MILI-ENV-SENSOR.md`。本文主体继续讲解需要代码适配的 PR5Y 空调，可选步骤还
+可以把设备发布到 Apple Home 和 Siri。
 
 本包不含任何真实家庭的 IP、MAC、Zigbee IEEE、房间名称、HomeKit 配对信息或
 密钥。使用者只需填写一份本地 `config.json`，生成器会产出适配自己环境的文件。
@@ -22,6 +24,10 @@ PR5Y 空调，可选步骤还可以把设备发布到 Apple Home 和 Siri。
 
 普通三路墙壁开关已验证指纹为 `TS0003 / _TZ3000_juccdfpb`，Zigbee2MQTT
 原生支持，不需要 PR5Y converter。请按 `docs/MILI-SWITCH.md` 操作。
+
+六合一环境探测器已验证指纹为 `TS0601 / _TZE200_elpnedea`，提供温度、湿度、
+照度、PM1、PM2.5 和 PM10。它需要
+`external_converters/mili_env_sensor.js`，请按 `docs/MILI-ENV-SENSOR.md` 操作。
 
 PR5Y converter 目前只验证过以下 Zigbee 指纹：
 
@@ -41,7 +47,10 @@ Zigbee2MQTT external converter 的人或 AI 分析，不要硬套本 converter�
 
 ## 2. 能做什么
 
-每个已配置区域提供：
+六合一环境探测器提供温度、湿度、照度、PM1、PM2.5 和 PM10 六项只读数据。它不
+写入阈值、校准或其他未确认的设备参数。
+
+PR5Y 的每个已配置区域提供：
 
 - 开机和关机
 - 目标温度，16-30 摄氏度，1 摄氏度步进
@@ -297,11 +306,12 @@ sections 合并到自己的仪表盘。
 
 ## 13. 可选：Apple Home 和 Siri
 
-推荐在 HA UI 中创建 HomeKit Bridge，然后只加入生成的 Climate 实体。具体实体
-列表见 `build/homekit-filter-fragment.yaml`。
+推荐在 HA UI 中创建 HomeKit Bridge。PR5Y 只加入生成的 Climate 实体，具体实体
+列表见 `build/homekit-filter-fragment.yaml`。环境探测器按
+`docs/MILI-ENV-SENSOR.md` 逐项加入支持的传感器。
 
 不要把 converter 暴露出的原始 power、DP、注册和查询实体发布到 Apple Home，
-否则会出现一堆难以理解的平铺开关。只发布 Climate。
+否则会出现一堆难以理解的平铺开关。PR5Y 只发布 Climate。
 
 HA 官方文档说明 UI 创建的 HomeKit Bridge 应继续在 UI 中管理；不要再用 YAML
 配置同一个桥，否则会创建另一个实例。Docker 部署通常应使用 host 网络，并允许
@@ -391,8 +401,8 @@ PR5Y 实测不能在同一条三级消息中可靠执行 DP4 和 DP1。本 conve
 
 ### Apple Home 很乱
 
-HomeKit Bridge 只包含 Climate。不要包含 Zigbee2MQTT 自动发现的原始 config 和
-diagnostic 实体。
+PR5Y 在 HomeKit Bridge 中只包含 Climate。环境探测器逐项选择需要的传感器，不要
+包含 Zigbee2MQTT 自动发现的原始 config 和 diagnostic 实体。
 
 ## 17. 给 AI 的入口
 

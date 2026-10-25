@@ -27,16 +27,27 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
-echo "[1/6] Test generator validation"
+echo "[1/7] Check standalone converter syntax and mappings"
+node --check "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "_TZE200_elpnedea" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "toZigbee: \[\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "\[2, 'pm25', tuya.valueConverter.raw\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "\[17, 'illuminance', tuya.valueConverter.raw\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "\[18, 'temperature', tuya.valueConverter.divideBy10\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "\[19, 'humidity', tuya.valueConverter.raw\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "\[23, 'pm1', tuya.valueConverter.raw\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+grep -q "\[24, 'pm10', tuya.valueConverter.raw\]" "$KIT_ROOT/external_converters/mili_env_sensor.js"
+
+echo "[2/7] Test generator validation"
 node "$SCRIPT_DIR/test-generator.mjs"
 
-echo "[2/6] Generate configuration"
+echo "[3/7] Generate configuration"
 node "$SCRIPT_DIR/generate-config.mjs" "$CONFIG_PATH" "$OUTPUT_DIR"
 
-echo "[3/6] Check converter syntax"
+echo "[4/7] Check generated converter syntax"
 node --check "$OUTPUT_DIR/mili-hvac-pr5y.js"
 
-echo "[4/6] Check generated manifest and SHA-256 values"
+echo "[5/7] Check generated manifest and SHA-256 values"
 node -e '
   const crypto = require("node:crypto");
   const fs = require("node:fs");
@@ -55,7 +66,7 @@ node -e '
   }
 ' "$OUTPUT_DIR"
 
-echo "[5/6] Parse generated YAML"
+echo "[6/7] Parse generated YAML"
 if command -v ruby >/dev/null 2>&1; then
   ruby -e '
     require "yaml"
@@ -70,7 +81,7 @@ else
   echo "Ruby is unavailable; YAML parser check skipped." >&2
 fi
 
-echo "[6/6] Check required safety behavior"
+echo "[7/7] Check required safety behavior"
 grep -q "const modeChangeOffSettleMs = 2000;" "$OUTPUT_DIR/mili-hvac-pr5y.js"
 grep -q "const modeChangeCommandSettleMs = 500;" "$OUTPUT_DIR/mili-hvac-pr5y.js"
 grep -q "Number.isInteger(temperature)" "$OUTPUT_DIR/mili-hvac-pr5y.js"
